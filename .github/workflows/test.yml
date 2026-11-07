@@ -20,14 +20,9 @@ jobs:
     steps:
       - uses: Homebrew/actions/setup-homebrew@main
 
-      - uses: actions/checkout@v6
-        with:
-          path: tap
-
+      # setup-homebrew taps this repository at the tested commit.
       - name: Install and test
         run: |
-          TAP="$(brew --repository)/Library/Taps/helpcode-ai/homebrew-tap"
-          rm -rf "$TAP" && mkdir -p "$(dirname "$TAP")" && cp -R tap "$TAP"
           brew install --build-from-source helpcode-ai/tap/amcp
           brew test helpcode-ai/tap/amcp
 

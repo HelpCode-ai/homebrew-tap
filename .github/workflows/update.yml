@@ -36,8 +36,8 @@ jobs:
       - name: Install and test the new version
         if: steps.check.outputs.update == 'true'
         run: |
-          TAP="$(brew --repository)/Library/Taps/helpcode-ai/homebrew-tap"
-          rm -rf "$TAP" && mkdir -p "$(dirname "$TAP")" && cp -R "$GITHUB_WORKSPACE" "$TAP"
+          # setup-homebrew tapped the committed formula; test the edited one.
+          cp Formula/amcp.rb "$(brew --repository helpcode-ai/tap)/Formula/amcp.rb"
           brew install --build-from-source helpcode-ai/tap/amcp
           brew test helpcode-ai/tap/amcp
 
