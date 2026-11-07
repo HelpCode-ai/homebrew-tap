@@ -26,8 +26,9 @@ class Amcp < Formula
     # Without a saved profile the CLI must refuse with a clear error and exit code 2.
     assert_match "Profile not found", shell_output("#{bin}/amcp whoami 2>&1", 2)
 
-    # A server that cannot be reached is reported with exit code 4.
-    ENV["AMCP_URL"] = "http://127.0.0.1:#{free_port}"
+    # A server that cannot be reached is reported with exit code 4. Port 1 is
+    # never open, and the test's network sandbox refuses the connection anyway.
+    ENV["AMCP_URL"] = "http://127.0.0.1:1"
     ENV["AMCP_SERVER"] = "test"
     ENV["AMCP_API_KEY"] = "mcp_test"
     assert_match "Could not connect", shell_output("#{bin}/amcp tools ls 2>&1", 4)
