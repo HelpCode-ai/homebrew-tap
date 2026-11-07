@@ -1,0 +1,50 @@
+name: Update amcp
+
+# Once a day: when npm has a newer @anythingmcp/cli, point the formula at it,
+# install and test it, and commit the change to main.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Look for a new version
+        id: check
+        run: |
+          latest=$(curl -fsSL https://registry.npmjs.org/@anythingmcp/cli/latest | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')
+          current=$(sed -n 's#.*/cli-\([0-9][0-9.]*\)\.tgz".*#\1#p' Formula/amcp.rb)
+          echo "current=$current latest=$latest"
+          if [ "$latest" = "$current" ]; then echo "update=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          url="https://registry.npmjs.org/@anythingmcp/cli/-/cli-${latest}.tgz"
+          sha=$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)
+          sed -i '' -e "s#^  url \".*\"#  url \"${url}\"#" -e "s#^  sha256 \".*\"#  sha256 \"${sha}\"#" Formula/amcp.rb
+          echo "update=true" >> "$GITHUB_OUTPUT"
+          echo "version=$latest" >> "$GITHUB_OUTPUT"
+
+      - uses: Homebrew/actions/setup-homebrew@main
+        if: steps.check.outputs.update == 'true'
+
+      - name: Install and test the new version
+        if: steps.check.outputs.update == 'true'
+        run: |
+          TAP="$(brew --repository)/Library/Taps/helpcode-ai/homebrew-tap"
+          rm -rf "$TAP" && mkdir -p "$(dirname "$TAP")" && cp -R "$GITHUB_WORKSPACE" "$TAP"
+          brew install --build-from-source helpcode-ai/tap/amcp
+          brew test helpcode-ai/tap/amcp
+
+      - name: Commit
+        if: steps.check.outputs.update == 'true'
+        run: |
+          git config user.name "helpcode.ai"
+          git config user.email "github@helpcode.ai"
+          git commit -am "amcp ${{ steps.check.outputs.version }}"
+          git push

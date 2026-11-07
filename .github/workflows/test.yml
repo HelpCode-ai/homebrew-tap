@@ -1,0 +1,33 @@
+name: Test formula
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@main
+
+      - uses: actions/checkout@v6
+        with:
+          path: tap
+
+      - name: Install, test and audit
+        run: |
+          TAP="$(brew --repository)/Library/Taps/helpcode-ai/homebrew-tap"
+          rm -rf "$TAP" && mkdir -p "$(dirname "$TAP")" && cp -R tap "$TAP"
+          brew install --build-from-source helpcode-ai/tap/amcp
+          brew test helpcode-ai/tap/amcp
+          brew audit --strict helpcode-ai/tap/amcp
