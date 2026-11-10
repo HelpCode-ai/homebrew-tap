@@ -56,4 +56,4 @@ jobs:
           git config user.name "helpcode.ai"
           git config user.email "github@helpcode.ai"
           git commit -am "amcp ${{ steps.check.outputs.version }}"
-          git push
+          git push origin HEAD:main
