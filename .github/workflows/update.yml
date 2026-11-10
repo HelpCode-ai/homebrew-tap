@@ -52,8 +52,12 @@ jobs:
 
       - name: Commit
         if: steps.check.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          # setup-homebrew resets the tapped checkout and drops the credentials
+          # actions/checkout configured, so push with the job token directly.
           git config user.name "helpcode.ai"
           git config user.email "github@helpcode.ai"
           git commit -am "amcp ${{ steps.check.outputs.version }}"
-          git push origin HEAD:main
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
