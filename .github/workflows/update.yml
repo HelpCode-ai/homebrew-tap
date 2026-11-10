@@ -36,8 +36,10 @@ jobs:
       - name: Install and test the new version
         if: steps.check.outputs.update == 'true'
         run: |
-          # setup-homebrew tapped the committed formula; test the edited one.
-          cp Formula/amcp.rb "$(brew --repository helpcode-ai/tap)/Formula/amcp.rb"
+          # setup-homebrew taps this checkout, so the tap usually is the edited
+          # formula already; copy only when it is a separate clone.
+          tapped="$(brew --repository helpcode-ai/tap)/Formula/amcp.rb"
+          if [ ! "Formula/amcp.rb" -ef "$tapped" ]; then cp Formula/amcp.rb "$tapped"; fi
           brew install --build-from-source helpcode-ai/tap/amcp
           brew test helpcode-ai/tap/amcp
 
