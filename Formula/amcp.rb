@@ -1,8 +1,8 @@
 class Amcp < Formula
   desc "Command-line client for AnythingMCP, the open-source MCP gateway"
   homepage "https://anythingmcp.com"
-  url "https://registry.npmjs.org/@anythingmcp/cli/-/cli-0.1.7.tgz"
-  sha256 "4a4ab1aaa0979e34e7f91715956e5fb9314b073d7ab3b440568713bff6af4eb9"
+  url "https://registry.npmjs.org/@anythingmcp/cli/-/cli-0.1.8.tgz"
+  sha256 "ae29e80ae6fd01e2eb67aac8b2ffda9a9b4ba1e91adfa5d2079bdf101a311104"
   license "AGPL-3.0-only"
 
   depends_on "node"
